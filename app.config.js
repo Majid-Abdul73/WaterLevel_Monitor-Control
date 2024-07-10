@@ -2,7 +2,7 @@ import 'dotenv/config';
 
 export default ({ config }) => ({
   ...config,
-  name: "MarcJeff",
+  name: "marcjeff",
   slug: "marcjeff",
   icon: "./assets/icon.png",
   splash: {
