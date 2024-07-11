@@ -26,7 +26,7 @@ const AuthenticationScreen = ({ navigation }) => {
 
   const handleLogin = async () => {
     // Rapid development mode: bypass actual authentication
-    if (email === '' && password === '') {
+    if (email === 'D11' && password === '0011') {
       navigation.navigate('Dashboard');
     } else {
       try {
