@@ -1,35 +1,18 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import SwitchToggle from 'react-native-switch-toggle';
 import { useWaterLevel } from '../context/WaterLevelContext';
-import supabase from '../supabaseClient';
 
 const PumpControlScreen = () => {
   const navigation = useNavigation();
-  const { isPumpOn, setIsPumpOn, waterLevel } = useWaterLevel();
+  const { isPumpOn, isManualOn, updateManualStatus } = useWaterLevel();
 
-  const updatePumpStatus = async (status) => {
-    try {
-      const { error } = await supabase
-        .from('pump_status')
-        .insert([{ is_on: status }]);
-
-      if (error) {
-        console.error('Error updating pump status:', error);
-        Alert.alert('Error', 'Failed to update pump status.');
-      }
-    } catch (error) {
-      console.error('Unexpected error updating pump status:', error);
-      Alert.alert('Error', 'An unexpected error occurred.');
-    }
-  };
-
-  const handleToggle = async () => {
-    setIsPumpOn(!isPumpOn);
-    await updatePumpStatus(!isPumpOn);
-    Alert.alert(`Pump ${!isPumpOn ? 'ON' : 'OFF'}`);
+  const handleManualToggle = async () => {
+    const newManualStatus = !isManualOn;
+    await updateManualStatus(newManualStatus);
+    Alert.alert(`Manual Control ${newManualStatus ? 'ON' : 'OFF'}`);
   };
 
   return (
@@ -41,15 +24,19 @@ const PumpControlScreen = () => {
         <Text style={styles.statusLabel}>Pump Status</Text>
         <Text style={styles.statusValue}>{isPumpOn ? 'ON' : 'OFF'}</Text>
       </View>
+
       <Text style={styles.sectionTitle}>Manual Controls</Text>
       <View style={styles.controlContainer}>
         <View style={styles.controlTextContainer}>
-          <Text style={styles.controlTitle}>{isPumpOn ? 'Turn Off' : 'Turn On'}</Text>
-          <Text style={styles.controlDescription}>{isPumpOn ? 'Stop the pump' : 'Start the pump'}</Text>
+          <Text style={styles.controlTitle}>{isManualOn ? 'Turn Off' : 'Turn On'}</Text>
+          <Text style={styles.controlDescription}>
+            {isManualOn ? 'Stop the pump manually' : 'Start the pump manually'}
+          </Text>
         </View>
+
         <SwitchToggle
-          switchOn={isPumpOn}
-          onPress={handleToggle}
+          switchOn={isManualOn}
+          onPress={handleManualToggle}
           circleColorOff="#FFF"
           circleColorOn="#FFF"
           backgroundColorOn="#3EB170"
@@ -58,6 +45,7 @@ const PumpControlScreen = () => {
           circleStyle={styles.switchCircle}
         />
       </View>
+
       <View style={styles.buttonContainer}>
         <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Authentication')}>
           <Ionicons name="home-outline" size={24} color="#FFFFFF" />
@@ -75,6 +63,9 @@ const PumpControlScreen = () => {
     </View>
   );
 };
+
+
+
 
 const styles = StyleSheet.create({
   container: {
